@@ -3,6 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class AdvancedPlayerMovement3D : MonoBehaviour
 {
+    private const float MinHorizontalBoostVelocitySqrMagnitude = 0.01f;
+    private const float MinBoostDirectionSqrMagnitude = 0.001f;
+
     [Header("Movement Settings")]
     public float moveSpeed = 10f;
     public float jumpForce = 15f;
@@ -199,14 +202,14 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
     {
         Vector3 grappleReleaseDirection = transform.position - grapplePoint;
         grappleReleaseDirection.y = 0f;
-        if (grappleReleaseDirection.sqrMagnitude > 0.001f)
+        if (grappleReleaseDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
         {
             grappleReleaseDirection.Normalize();
         }
 
         Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        Vector3 boostDirection = horizontalVelocity.sqrMagnitude > 0.01f ? horizontalVelocity.normalized : grappleReleaseDirection;
-        if (boostDirection.sqrMagnitude > 0.001f)
+        Vector3 boostDirection = horizontalVelocity.sqrMagnitude > MinHorizontalBoostVelocitySqrMagnitude ? horizontalVelocity.normalized : grappleReleaseDirection;
+        if (boostDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
         {
             pendingReleaseBoost = boostDirection * grappleReleaseBoost;
             skipStopThisFixedUpdate = true;
