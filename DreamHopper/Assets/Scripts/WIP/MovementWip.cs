@@ -197,10 +197,18 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
 
     void ReleaseGrapple()
     {
-        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (horizontalVelocity.sqrMagnitude > 0.01f)
+        Vector3 grappleReleaseDirection = transform.position - grapplePoint;
+        grappleReleaseDirection.y = 0f;
+        if (grappleReleaseDirection.sqrMagnitude > 0.001f)
         {
-            pendingReleaseBoost = horizontalVelocity.normalized * grappleReleaseBoost;
+            grappleReleaseDirection.Normalize();
+        }
+
+        Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        Vector3 boostDirection = horizontalVelocity.sqrMagnitude > 0.01f ? horizontalVelocity.normalized : grappleReleaseDirection;
+        if (boostDirection.sqrMagnitude > 0.001f)
+        {
+            pendingReleaseBoost = boostDirection * grappleReleaseBoost;
             skipStopThisFixedUpdate = true;
         }
 
