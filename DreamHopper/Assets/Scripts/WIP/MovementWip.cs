@@ -206,6 +206,16 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
         {
             grappleReleaseDirection.Normalize();
         }
+        else
+        {
+            grappleReleaseDirection = transform.forward;
+            grappleReleaseDirection.y = 0f;
+            if (grappleReleaseDirection.sqrMagnitude <= MinBoostDirectionSqrMagnitude)
+            {
+                grappleReleaseDirection = Vector3.forward;
+            }
+            grappleReleaseDirection.Normalize();
+        }
 
         Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         Vector3 boostDirection;
@@ -218,11 +228,8 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
             boostDirection = grappleReleaseDirection;
         }
 
-        if (boostDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
-        {
-            pendingReleaseBoost = boostDirection * grappleReleaseBoost;
-            skipStopThisFixedUpdate = true;
-        }
+        pendingReleaseBoost = boostDirection * grappleReleaseBoost;
+        skipStopThisFixedUpdate = true;
 
         isGrappling = false;
 
