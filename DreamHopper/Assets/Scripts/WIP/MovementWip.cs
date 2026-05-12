@@ -200,7 +200,7 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
 
     void ReleaseGrapple()
     {
-        Vector3 grappleReleaseDirection = transform.position - grapplePoint;
+        Vector3 grappleReleaseDirection = grapplePoint - transform.position;
         grappleReleaseDirection.y = 0f;
         if (grappleReleaseDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
         {
@@ -208,7 +208,16 @@ public class AdvancedPlayerMovement3D : MonoBehaviour
         }
 
         Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        Vector3 boostDirection = horizontalVelocity.sqrMagnitude > MinHorizontalBoostVelocitySqrMagnitude ? horizontalVelocity.normalized : grappleReleaseDirection;
+        Vector3 boostDirection;
+        if (horizontalVelocity.sqrMagnitude > MinHorizontalBoostVelocitySqrMagnitude)
+        {
+            boostDirection = horizontalVelocity.normalized;
+        }
+        else
+        {
+            boostDirection = grappleReleaseDirection;
+        }
+
         if (boostDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
         {
             pendingReleaseBoost = boostDirection * grappleReleaseBoost;
