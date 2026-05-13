@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - GrappleHook
+  - RocketLauncher
   layers:
   - Default
   - TransparentFX
