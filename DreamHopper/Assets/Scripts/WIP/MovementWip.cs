@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class AdvancedPlayerMovement3D : MonoBehaviour
+public class MovementWip : MonoBehaviour
 {
     private const float MinHorizontalBoostVelocitySqrMagnitude = 0.01f;
     private const float MinBoostDirectionSqrMagnitude = 0.001f;
