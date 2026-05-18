@@ -20,28 +20,40 @@ public class Grenade : MonoBehaviour
 
     void Explode()
     {
-        // Find player
+        Vector3 explosionPos = transform.position;
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
-                Vector3 explosionPos = transform.position;
-                Vector3 playerPos = player.transform.position;
-                float distance = Vector3.Distance(explosionPos, playerPos);
-                if (distance < explosionRadius)
+                Vector3 directionToPlayer = player.transform.position - explosionPos;
+                float distanceToPlayer = directionToPlayer.magnitude;
+
+                if (distanceToPlayer <= explosionRadius)
                 {
-                    Vector3 direction = Vector3.up; // Rocket jump upward
-                    float force = explosionForce / (distance * distance + 1f); // Inverse square law with offset
-                    if (playerRb.linearVelocity.y > 0) // If player is jumping (has upward velocity)
+                    Ray ray = new Ray(explosionPos, directionToPlayer.normalized);
+                    if (Physics.Raycast(ray, out RaycastHit hit, explosionRadius))
                     {
-                        force *= jumpMultiplier;
+                        Rigidbody hitBody = hit.collider.attachedRigidbody;
+                        if (hitBody == playerRb)
+                        {
+                            Vector3 hitDirection = (hit.point - explosionPos).normalized;
+                            float distanceFactor = 1f - (hit.distance / explosionRadius);
+                            float force = explosionForce * Mathf.Max(distanceFactor, 0.1f);
+
+                            // Keep a stronger horizontal component so the launch isn't only upward
+                            Vector3 launchDirection = new Vector3(hitDirection.x, Mathf.Clamp(hitDirection.y, 0.2f, 1f), hitDirection.z).normalized;
+
+                            // Reset vertical velocity for consistent launch behavior
+                            playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x, 0f, playerRb.linearVelocity.z);
+                            playerRb.AddForce(launchDirection * force, ForceMode.Impulse);
+                        }
                     }
-                    playerRb.AddForce(direction * force, ForceMode.Impulse);
                 }
             }
         }
+
         Destroy(gameObject);
     }
 }

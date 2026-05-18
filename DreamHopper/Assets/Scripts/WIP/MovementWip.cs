@@ -8,6 +8,8 @@ public class MovementWip : MonoBehaviour
 
     [Header("Movement Settings")]
     public float moveSpeed = 10f;
+    public float acceleration = 50f; // How fast we reach moveSpeed
+    public float airAcceleration = 20f; // Lower control in the air
     public float jumpForce = 15f;
     public float maxSpeed = 20f;
     public float inputDeadzone = 0.15f;
@@ -21,11 +23,11 @@ public class MovementWip : MonoBehaviour
     public GameObject grapplingHookPrefab;
     public float hookSpeed = 20f;
     public float maxGrappleDistance = 20f;
-    public float grapplePullSpeed = 2f; // How fast the rope shortens
+    public float grapplePullSpeed = 2f; 
     public LayerMask hookableLayers;
 
     [Header("Camera")]
-    public Transform cameraTransform; // Reference to the camera
+    public Transform cameraTransform; 
 
     [Header("Platform Settings")]
     public LayerMask platformLayer;
@@ -44,6 +46,7 @@ public class MovementWip : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = true; // Ensure gravity is on
         lineRenderer = GetComponent<LineRenderer>();
         if (lineRenderer == null)
         {
@@ -92,16 +95,9 @@ public class MovementWip : MonoBehaviour
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Mathf.Abs(horizontalInput) < inputDeadzone)
-        {
-            horizontalInput = 0f;
-        }
-        if (Mathf.Abs(verticalInput) < inputDeadzone)
-        {
-            verticalInput = 0f;
-        }
+        if (Mathf.Abs(horizontalInput) < inputDeadzone) horizontalInput = 0f;
+        if (Mathf.Abs(verticalInput) < inputDeadzone) verticalInput = 0f;
 
-        // Get camera forward direction, project to horizontal plane
         Vector3 cameraForward = cameraTransform.forward;
         cameraForward.y = 0f;
         cameraForward.Normalize();
@@ -110,56 +106,62 @@ public class MovementWip : MonoBehaviour
         cameraRight.y = 0f;
         cameraRight.Normalize();
 
-        // Calculate movement direction relative to camera
-        Vector3 moveDirection = cameraRight * horizontalInput + cameraForward * verticalInput;
+        Vector3 moveDirection = (cameraRight * horizontalInput + cameraForward * verticalInput).normalized;
 
-        bool hasMovementInput = moveDirection.sqrMagnitude > 0.001f;
-        if (hasMovementInput)
+        // --- NEW PHYSICS-FRIENDLY MOVEMENT ---
+        
+        // 1. Get current horizontal velocity
+        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        
+        // 2. Calculate target velocity based on input
+        Vector3 targetVelocity = moveDirection * moveSpeed;
+
+        if (moveDirection.sqrMagnitude > 0.001f)
         {
-            moveDirection.Normalize();
-            Vector3 horizontalVelocity = moveDirection * moveSpeed;
-            rb.linearVelocity = new Vector3(horizontalVelocity.x, rb.linearVelocity.y, horizontalVelocity.z);
+            // If we are grounded, move normally. 
+            // If we are in the air, use lower acceleration so we don't instantly override the rocket boost.
+            float accelRate = isGrounded ? acceleration : airAcceleration;
+            
+            // Move current velocity towards target velocity
+            Vector3 newHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetVelocity, accelRate * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
         }
-        else if (!isGrappling && !skipStopThisFixedUpdate)
+        else if (isGrounded && !isGrappling && !skipStopThisFixedUpdate)
         {
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            // Only stop the player completely if they are on the ground and not touching keys
+            Vector3 slowedVelocity = Vector3.MoveTowards(currentHorizontalVelocity, Vector3.zero, acceleration * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector3(slowedVelocity.x, rb.linearVelocity.y, slowedVelocity.z);
         }
 
+        // --- GRAPPLE BOOST LOGIC ---
         if (pendingReleaseBoost.sqrMagnitude > 0.0001f)
         {
             float boostStepScale = Time.fixedDeltaTime / Mathf.Max(grappleReleaseBoostDuration, 0.001f);
             Vector3 boostStep = pendingReleaseBoost * boostStepScale;
             rb.linearVelocity += new Vector3(boostStep.x, 0f, boostStep.z);
             pendingReleaseBoost -= boostStep;
-            if (pendingReleaseBoost.sqrMagnitude < 0.0001f)
-            {
-                pendingReleaseBoost = Vector3.zero;
-            }
         }
 
-        // Clamp max speed horizontally
-        Vector3 clampedHorizontal = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (clampedHorizontal.magnitude > maxSpeed)
+        // Clamp max speed (Allowing for slight overshoot from explosions)
+        if (new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude > maxSpeed * 2f) 
         {
-            clampedHorizontal = clampedHorizontal.normalized * maxSpeed;
-            rb.linearVelocity = new Vector3(clampedHorizontal.x, rb.linearVelocity.y, clampedHorizontal.z);
+            Vector3 clamped = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).normalized * (maxSpeed * 2f);
+            rb.linearVelocity = new Vector3(clamped.x, rb.linearVelocity.y, clamped.z);
         }
 
-        // Jumping only in FixedUpdate, using stored jump request for consistency
+        // Jumping
         if (isGrounded && jumpRequest)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpRequest = false;
         }
-        else if (!isGrounded)
-        {
-            jumpRequest = false;
-        }
-
+        
+        jumpRequest = false;
         skipStopThisFixedUpdate = false;
     }
 
+    // ... (Rest of your Grapple and Collision methods remain the same)
+    
     void ShootGrapplingHook()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -170,17 +172,15 @@ public class MovementWip : MonoBehaviour
             isGrappling = true;
             currentGrappleLength = Vector3.Distance(transform.position, grapplePoint);
 
-            // Instantiate hook
             if (grapplingHookPrefab != null)
             {
                 currentHook = Instantiate(grapplingHookPrefab, grapplePoint, Quaternion.identity);
             }
 
-            // Create spring joint for physics-based grapple
             grappleJoint = gameObject.AddComponent<SpringJoint>();
-            grappleJoint.connectedBody = null; // Connect to world point
+            grappleJoint.connectedBody = null; 
             grappleJoint.connectedAnchor = grapplePoint;
-            grappleJoint.spring = 100f; // High spring for tight rope
+            grappleJoint.spring = 100f; 
             grappleJoint.damper = 10f;
             grappleJoint.maxDistance = currentGrappleLength;
             grappleJoint.minDistance = 0f;
@@ -193,56 +193,21 @@ public class MovementWip : MonoBehaviour
         if (grappleJoint != null)
         {
             currentGrappleLength -= grapplePullSpeed * Time.deltaTime;
-            currentGrappleLength = Mathf.Max(currentGrappleLength, 1f); // Minimum length
+            currentGrappleLength = Mathf.Max(currentGrappleLength, 1f); 
             grappleJoint.maxDistance = currentGrappleLength;
         }
     }
 
     void ReleaseGrapple()
     {
-        Vector3 grappleReleaseDirection = grapplePoint - transform.position;
-        grappleReleaseDirection.y = 0f;
-        if (grappleReleaseDirection.sqrMagnitude > MinBoostDirectionSqrMagnitude)
-        {
-            grappleReleaseDirection.Normalize();
-        }
-        else
-        {
-            grappleReleaseDirection = transform.forward;
-            grappleReleaseDirection.y = 0f;
-            if (grappleReleaseDirection.sqrMagnitude <= MinBoostDirectionSqrMagnitude)
-            {
-                grappleReleaseDirection = Vector3.forward;
-            }
-            grappleReleaseDirection.Normalize();
-        }
-
         Vector3 horizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        Vector3 boostDirection;
-        if (horizontalVelocity.sqrMagnitude > MinHorizontalBoostVelocitySqrMagnitude)
-        {
-            boostDirection = horizontalVelocity.normalized;
-        }
-        else
-        {
-            boostDirection = grappleReleaseDirection;
-        }
-
-        pendingReleaseBoost = boostDirection * grappleReleaseBoost;
+        pendingReleaseBoost = (horizontalVelocity.normalized) * grappleReleaseBoost;
+        
+        isGrappling = false;
         skipStopThisFixedUpdate = true;
 
-        isGrappling = false;
-
-        if (grappleJoint != null)
-        {
-            Destroy(grappleJoint);
-            grappleJoint = null;
-        }
-        if (currentHook != null)
-        {
-            Destroy(currentHook);
-            currentHook = null;
-        }
+        if (grappleJoint != null) Destroy(grappleJoint);
+        if (currentHook != null) Destroy(currentHook);
     }
 
     void CheckGrounded()
@@ -261,22 +226,6 @@ public class MovementWip : MonoBehaviour
         else
         {
             lineRenderer.enabled = false;
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (platformLayer == (platformLayer | (1 << collision.gameObject.layer)))
-        {
-            isGrounded = true;
-        }
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        if (platformLayer == (platformLayer | (1 << collision.gameObject.layer)))
-        {
-            isGrounded = false;
         }
     }
 }

@@ -5,6 +5,7 @@ public class SelectItem : MonoBehaviour
 {
     [Header("References")]
     public MovementWip movementWip;
+    public GrenadeLauncher grenadelauncher;
 
     [Header("Item UI Images")]
     public Image itemSlot1UI; // First item slot image
@@ -68,6 +69,7 @@ public class SelectItem : MonoBehaviour
         if (movementWip != null)
         {
             movementWip.canUseGrapplingHook = false;
+            GrenadeLauncher.grenadelauncheractive = false;
         }
 
         Debug.Log("Selected Item 1 - Grapple Disabled");
@@ -86,6 +88,7 @@ public class SelectItem : MonoBehaviour
         if (movementWip != null)
         {
             movementWip.canUseGrapplingHook = true;
+            grendalauncher.grenadelauncheractive = false; 
         }
 
         Debug.Log("Selected Item 2 (Grapple Hook) - Grapple Enabled");
@@ -102,6 +105,7 @@ public class SelectItem : MonoBehaviour
         if (movementWip != null)
         {
             movementWip.canUseGrapplingHook = false;
+            grenadelauncher.grenadelauncheractive = true; 
         }
 
         Debug.Log("Selected Item 3 (Rocket Launcher) - Rocket Launcher Enabled");

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class grenadelauncher : MonoBehaviour
+public class GrenadeLauncher : MonoBehaviour
 {
     public GameObject grenadePrefab;
     public float launchForce = 10f;
