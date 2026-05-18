@@ -19,7 +19,7 @@ public class MovementWip2 : MonoBehaviour
     public Transform groundProbe;
     public Transform grappleMarker;
     public GameObject grapplingHookVisualPrefab;
-    public grenadelauncher grenadeLauncher;
+    public GrenadeLauncher grenadeLauncher;
     public bool synchronizeGrenadeLauncher = true;
 
     [Header("Movement")]
