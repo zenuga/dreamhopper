@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GrappleHook
   - RocketLauncher
+  - DreamOrb
   layers:
   - Default
   - TransparentFX

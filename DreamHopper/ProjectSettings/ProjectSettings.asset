@@ -823,7 +823,8 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Standalone: SENTIS_ANALYTICS_ENABLED;APP_UI_EDITOR_ONLY
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -923,11 +924,11 @@ PlayerSettings:
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
-  cloudProjectId: 11a4fd67-ffa5-4ddc-ae9d-37317996579a
+  cloudProjectId: 98c15f28-9bb9-435a-acda-e7cf8298692c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: DreamHopper
-  organizationId: wesleyanemaet
+  projectName: dream hopper
+  organizationId: unity_35cad45812cb51ac9590
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
