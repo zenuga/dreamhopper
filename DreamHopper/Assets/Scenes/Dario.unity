@@ -1284,7 +1284,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SelectItem
   movementWip: {fileID: 1879242985}
-  grenadeLauncher: {fileID: 1279621324}
+  grenadeLauncher: {fileID: 1879242993}
   itemSlot1UI: {fileID: 245498487}
   itemSlot1AdditionalUI: {fileID: 983341448}
   itemSlot2UI: {fileID: 1610905290}
@@ -1855,55 +1855,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254253906}
   m_CullTransparentMesh: 1
---- !u!1 &1279621323
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1279621325}
-  - component: {fileID: 1279621324}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1279621324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279621323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8560ba3bbe0074a8a9cb28e316a31091, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GrenadeLauncher
-  grenadePrefab: {fileID: 7425994975706907357, guid: a62b72c1b0965fd97afd25808e1cc4b8, type: 3}
-  launchForce: 10
-  launchPoint: {fileID: 1879242990}
-  grenadelauncherunlocked: 0
-  grenadelauncheractive: 0
---- !u!4 &1279621325
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279621323}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.02066, y: -0, z: 4.40194}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1329242081
 GameObject:
   m_ObjectHideFlags: 0
@@ -2235,7 +2186,7 @@ MonoBehaviour:
   level: level1
   loadDelay: 5
   movementWip: {fileID: 1879242985}
-  grenadeLauncher: {fileID: 1279621324}
+  grenadeLauncher: {fileID: 0}
   portalEffect: {fileID: 2039474175}
 --- !u!1 &1515115162
 GameObject:
@@ -3114,6 +3065,8 @@ GameObject:
   - component: {fileID: 1879242986}
   - component: {fileID: 1879242985}
   - component: {fileID: 1879242991}
+  - component: {fileID: 1879242993}
+  - component: {fileID: 1879242992}
   m_Layer: 4
   m_Name: Capsule
   m_TagString: Player
@@ -3139,20 +3092,11 @@ MonoBehaviour:
   jumpForce: 5
   maxSpeed: 20
   inputDeadzone: 0.15
-  grappleReleaseBoost: 11
-  grappleReleaseBoostDuration: 1
-  canUseGrapplingHook: 0
-  grapplingHookPrefab: {fileID: 8348878243263645345, guid: f417686a6996cbc1f8254aff1f7e4347, type: 3}
-  hookSpeed: 30
-  maxGrappleDistance: 25
-  grapplePullSpeed: 5
-  hookableLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
   cameraTransform: {fileID: 1345951083}
   platformLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  grappleHook: {fileID: 1879242992}
 --- !u!54 &1879242986
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3289,11 +3233,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemCollector
   selectItem: {fileID: 986586837}
-  grenadeLauncher: {fileID: 1279621324}
+  grenadeLauncher: {fileID: 1879242993}
   portal: {fileID: 1477196828}
   wall: {fileID: 1694341850}
   location: {x: 10.89, y: 20.2, z: 21.46}
   dreamOrbsCollected: 0
+--- !u!114 &1879242992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879242984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cada4c142b2e114eda07ec3cdc3b2351, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Grapplehook
+  grappleReleaseBoost: 2
+  grappleReleaseBoostDuration: 0.15
+  canUseGrapplingHook: 0
+  grapplingHookPrefab: {fileID: 8348878243263645345, guid: f417686a6996cbc1f8254aff1f7e4347, type: 3}
+  hookSpeed: 20
+  maxGrappleDistance: 20
+  grapplePullSpeed: 2
+  hookableLayers:
+    serializedVersion: 2
+    m_Bits: 39
+--- !u!114 &1879242993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879242984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8560ba3bbe0074a8a9cb28e316a31091, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrenadeLauncher
+  grenadePrefab: {fileID: 7425994975706907357, guid: a62b72c1b0965fd97afd25808e1cc4b8, type: 3}
+  launchForce: 10
+  launchPoint: {fileID: 1879242990}
+  grenadelauncherunlocked: 0
+  grenadelauncheractive: 0
+  cooldown: 2
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 16
 --- !u!1 &1885878586
 GameObject:
   m_ObjectHideFlags: 0
@@ -8602,6 +8589,5 @@ SceneRoots:
   - {fileID: 1454555982028015088}
   - {fileID: 673956679}
   - {fileID: 986586838}
-  - {fileID: 1279621325}
   - {fileID: 2105347270}
   - {fileID: 2039474176}
