@@ -11,6 +11,7 @@ public class CameraMovement : MonoBehaviour
     public float minDistance = 0.1f;
     public float maxDistance = 6f;
     public float firstPersonThreshold = 0.55f;
+    public float firstPersonHysteresis = 0.15f;
     public float zoomSpeed = 4f;
     public float smoothTime = 0.08f;
 
@@ -28,6 +29,7 @@ public class CameraMovement : MonoBehaviour
     private float pitch;
     private float distance;
     private Vector3 smoothVelocity;
+    private bool isFirstPersonView;
 
     private void Start()
     {
@@ -35,6 +37,7 @@ public class CameraMovement : MonoBehaviour
         Vector3 initialAngles = transform.eulerAngles;
         yaw = initialAngles.y;
         pitch = initialAngles.x > 180f ? initialAngles.x - 360f : initialAngles.x;
+        isFirstPersonView = distance <= firstPersonThreshold;
     }
 
     private void LateUpdate()
@@ -61,14 +64,15 @@ public class CameraMovement : MonoBehaviour
 
     private void HandleLook()
     {
-        bool isFirstPerson = distance <= firstPersonThreshold;
+        UpdateViewMode();
 
         float lookX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float lookY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        bool canRotate = isFirstPerson || Input.GetMouseButton(1);
+        bool canRotate = isFirstPersonView || Input.GetMouseButton(1);
         if (!canRotate)
         {
+            ApplyCursorState();
             return;
         }
 
@@ -76,16 +80,38 @@ public class CameraMovement : MonoBehaviour
         pitch -= lookY * thirdPersonRotateSpeed;
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        if (isFirstPerson)
+        ApplyCursorState();
+    }
+
+    private void UpdateViewMode()
+    {
+        float enterThreshold = firstPersonThreshold;
+        float exitThreshold = firstPersonThreshold + Mathf.Max(0f, firstPersonHysteresis);
+
+        if (isFirstPersonView)
+        {
+            if (distance > exitThreshold)
+            {
+                isFirstPersonView = false;
+            }
+        }
+        else if (distance <= enterThreshold)
+        {
+            isFirstPersonView = true;
+        }
+    }
+
+    private void ApplyCursorState()
+    {
+        if (isFirstPersonView)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            return;
         }
-        else
-        {
-            Cursor.lockState = Input.GetMouseButton(1) ? CursorLockMode.Locked : CursorLockMode.None;
-            Cursor.visible = !Input.GetMouseButton(1);
-        }
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void UpdateCameraPosition()

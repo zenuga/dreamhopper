@@ -539,6 +539,7 @@ GameObject:
   - component: {fileID: 1328024141}
   - component: {fileID: 1328024146}
   - component: {fileID: 1328024145}
+  - component: {fileID: 1328024147}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -654,37 +655,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8432dc1e0ec61baefa84a02dbf1cf102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MovementWip2
-  useNewInputSystem: 1
-  toolSwapKey: 113
+  useNewInputSystem: 0
   cameraTransform: {fileID: 2004056777}
   groundProbe: {fileID: 0}
-  grappleMarker: {fileID: 0}
-  grapplingHookVisualPrefab: {fileID: 0}
-  grenadeLauncher: {fileID: 0}
-  synchronizeGrenadeLauncher: 1
+  grappleHookSystem: {fileID: 1328024147}
   maxMoveSpeed: 8
   groundAcceleration: 35
   airAcceleration: 12
   jumpImpulse: 8.5
   airControlPercent: 0.6
+  turnSpeed: 720
+  coyoteTime: 0.12
+  jumpBufferTime: 0.12
   probeRadius: 0.28
   probeDistance: 0.55
   groundLayers:
     serializedVersion: 2
     m_Bits: 4294967295
   platformVelocityCarryOnJump: 0.7
-  grapplingHookUnlocked: 0
-  grapplingHookActive: 0
-  hookableLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  maxGrappleDistance: 35
-  grappleSpring: 55
-  grappleDamper: 7
-  minRopeLength: 2
-  reelSpeed: 10
-  releaseBoostImpulse: 4
-  releaseBoostCooldown: 0.2
 --- !u!54 &1328024146
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -712,6 +700,32 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &1328024147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328024140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8671ee1a223bf548b18be26a90db359, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrappleHookSystem
+  grapplingEnabled: 1
+  cameraTransform: {fileID: 0}
+  grappleMarker: {fileID: 0}
+  grapplingHookVisualPrefab: {fileID: 0}
+  hookableLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxGrappleDistance: 35
+  grappleSpring: 55
+  grappleDamper: 7
+  minRopeLength: 2
+  reelSpeed: 10
+  releaseBoostImpulse: 4
+  releaseBoostCooldown: 0.2
 --- !u!1 &1589656967
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,6 +978,7 @@ MonoBehaviour:
   minDistance: 0.1
   maxDistance: 6
   firstPersonThreshold: 0.55
+  firstPersonHysteresis: 0.15
   zoomSpeed: 4
   smoothTime: 0.08
   mouseSensitivity: 2.2
