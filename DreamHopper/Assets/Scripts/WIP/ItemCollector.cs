@@ -59,7 +59,7 @@ public class ItemCollector : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (portal.activeSelf)
+        if (portal != null && portal.activeSelf && wall != null)
         {
             wall.transform.Rotate(Vector3.up * 90f * Time.fixedDeltaTime, Space.Self);
             wall.transform.position = Vector3.MoveTowards(wall.transform.position, location, 5f * Time.fixedDeltaTime);
