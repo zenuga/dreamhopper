@@ -95,28 +95,28 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DisplaceFrequency: 8
-    - _DisplaceSpeed: 1.2
-    - _DisplaceStrength: 0.088
+    - _DisplaceFrequency: 4.7
+    - _DisplaceSpeed: 5.1
+    - _DisplaceStrength: 0.1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _FresnelPower: 3.35
+    - _FresnelPower: 2.39
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Intensity: 0
+    - _Intensity: 0.661
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OrbSize: 0.567
+    - _OrbSize: 0.75
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularIntensity: 0.042
-    - _SpecularPower: 10
+    - _SpecularIntensity: 0.106
+    - _SpecularPower: 43
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
