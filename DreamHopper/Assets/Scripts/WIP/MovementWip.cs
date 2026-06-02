@@ -25,6 +25,7 @@ public class MovementWip : MonoBehaviour
 
     private bool jumpRequest;
     private Rigidbody rb;
+    private GravityModifier gravityModifier;
     private bool isGrounded;
 
     public bool canUseGrapplingHook
@@ -42,7 +43,8 @@ public class MovementWip : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = true;
+        gravityModifier = GetComponent<GravityModifier>();
+        rb.useGravity = gravityModifier == null;
 
         if (grappleHook == null)
         {
@@ -88,17 +90,24 @@ public class MovementWip : MonoBehaviour
         if (Mathf.Abs(horizontalInput) < inputDeadzone) horizontalInput = 0f;
         if (Mathf.Abs(verticalInput) < inputDeadzone) verticalInput = 0f;
 
-        Vector3 cameraForward = cameraTransform.forward;
-        cameraForward.y = 0f;
-        cameraForward.Normalize();
+        Vector3 gravityDown = Vector3.down;
+        if (gravityModifier != null && gravityModifier.GravityDirection.sqrMagnitude > Mathf.Epsilon)
+        {
+            gravityDown = gravityModifier.GravityDirection;
+        }
 
-        Vector3 cameraRight = cameraTransform.right;
-        cameraRight.y = 0f;
-        cameraRight.Normalize();
+        Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, gravityDown).normalized;
+        Vector3 cameraRight = Vector3.ProjectOnPlane(cameraTransform.right, gravityDown).normalized;
+
+        if (cameraForward.sqrMagnitude < 0.001f)
+            cameraForward = Vector3.ProjectOnPlane(transform.forward, gravityDown).normalized;
+        if (cameraRight.sqrMagnitude < 0.001f)
+            cameraRight = Vector3.ProjectOnPlane(transform.right, gravityDown).normalized;
 
         Vector3 moveDirection = (cameraRight * horizontalInput + cameraForward * verticalInput).normalized;
 
-        Vector3 currentHorizontalVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        Vector3 gravityVelocity = Vector3.Project(rb.linearVelocity, gravityDown);
+        Vector3 currentHorizontalVelocity = rb.linearVelocity - gravityVelocity;
         Vector3 targetVelocity = moveDirection * moveSpeed;
 
         bool isGrappling = grappleHook != null && grappleHook.IsGrappling;
@@ -108,12 +117,12 @@ public class MovementWip : MonoBehaviour
         {
             float accelRate = isGrounded ? acceleration : airAcceleration;
             Vector3 newHorizontalVelocity = Vector3.MoveTowards(currentHorizontalVelocity, targetVelocity, accelRate * Time.fixedDeltaTime);
-            rb.linearVelocity = new Vector3(newHorizontalVelocity.x, rb.linearVelocity.y, newHorizontalVelocity.z);
+            rb.linearVelocity = newHorizontalVelocity + gravityVelocity;
         }
         else if (isGrounded && !isGrappling && !skipStop)
         {
             Vector3 slowedVelocity = Vector3.MoveTowards(currentHorizontalVelocity, Vector3.zero, acceleration * Time.fixedDeltaTime);
-            rb.linearVelocity = new Vector3(slowedVelocity.x, rb.linearVelocity.y, slowedVelocity.z);
+            rb.linearVelocity = slowedVelocity + gravityVelocity;
         }
 
         if (new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude > maxSpeed * 2f)
@@ -124,7 +133,7 @@ public class MovementWip : MonoBehaviour
 
         if (isGrounded && jumpRequest)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
             jumpRequest = false;
         }
 
@@ -133,6 +142,10 @@ public class MovementWip : MonoBehaviour
 
     void CheckGrounded()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f, platformLayer);
+        Vector3 down = gravityModifier != null && gravityModifier.GravityDirection.sqrMagnitude > Mathf.Epsilon
+            ? gravityModifier.GravityDirection
+            : Vector3.down;
+
+        isGrounded = Physics.Raycast(transform.position, down, 1.1f, platformLayer);
     }
 }
