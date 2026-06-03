@@ -29,7 +29,7 @@ public class Grapplehook : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = true;
+        // Do not change Rigidbody gravity here; let movement controller decide.
 
         lineRenderer = GetComponent<LineRenderer>();
         if (lineRenderer == null)
