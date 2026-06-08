@@ -47,7 +47,6 @@ public class MovementWip : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = false;
 
         if (grappleHook == null)
         {
